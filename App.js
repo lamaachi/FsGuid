@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React,{useState,useEffect} from 'react';
+import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { mapping, light as lightTheme } from '@eva-design/eva';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import SplashScreen from './Components/SplashScreen';
+import MainContent from './Components/MainContent';
+// import LoginPage from './Components/auth/LoginScreen';
+import LoginScreen from './Components/auth/LoginScreen2';
+import RegisterScreen from './Components/auth/ResgisterScreen';
 
-export default function App() {
+const Stack = createStackNavigator();
+
+const App = () => {
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider mapping={mapping} theme={lightTheme}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Spalsh">
+            <Stack.Screen name="Splash" options={{ headerShown: false }} component={SplashScreen} />
+            <Stack.Screen name="Main" options={{ headerShown: false }} component={MainContent} />
+            <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
+            <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterScreen}/>
+           </Stack.Navigator>
+        </NavigationContainer>
+      </ApplicationProvider>
+    </>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
