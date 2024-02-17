@@ -6,7 +6,7 @@ import {  Provider as PaperProvider } from 'react-native-paper';
 import DefaultTheme from "@react-navigation/native";
 import AppNavigator from "./navigation/Navigation";
 import { BackHandler } from "react-native";
-
+import { Card } from "react-native-elements";
 const MainContent = () => {
   const navigation = useNavigation();
 
@@ -37,13 +37,14 @@ const MainContent = () => {
     </PaperProvider>
   );
 };
-
+  
 const styles = StyleSheet.create({
   container: {
     marginTop:20,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "white"
   },
   text: {},
 });

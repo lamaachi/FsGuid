@@ -1,26 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
-import { Card, Avatar, Icon } from "react-native-elements";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import CustomButton from "../CustomButton";
-import { getAuth, signOut } from "firebase/auth";
+import {
+  StyleSheet,
+  StatusBar,
+  SafeAreaView,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { Card } from "react-native-elements";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import db from "../db/firebaseStore";
 
 const MoreScreen = ({ navigation }) => {
-  const [user, setUser] = useState("null");
-
+  const [userRole, setUserRole] = useState("");
+  const [email, setUserEmail] = useState("");
+  const wifiInfo = {networkName:"Compus Connecte",password:"Youre ucd pasword",networkEmail:"Youre ucd email"}
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userEmail = await AsyncStorage.getItem("userToken");
-        if (userEmail) {
-          setUser({ email: userEmail });
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const  role  = await fetchUserRole(user.email);
+        setUserRole(role);
+        setUserEmail(user.email);
       }
-    };
-
-    fetchUserData();
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
@@ -28,87 +35,175 @@ const MoreScreen = ({ navigation }) => {
       // Sign out from Firebase
       const auth = getAuth();
       await signOut(auth);
-      await AsyncStorage.removeItem("userToken");
       navigation.navigate("Login");
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.gridContainer}>
-        <View style={styles.gridItem}>
-        <CustomButton onPress={handleLogout} title="Logout" />
-        </View>
-      </View>
+  //fetch user Role
+  const fetchUserRole = async (userEmail) => {
+    try {
+      const usersCollection = collection(db, "users");
+      const q = query(
+        usersCollection,
+        where("email", "==", userEmail)
+      );
+      const querySnapshot = await getDocs(q);
+      let role = "";
+      let email = "";
+      querySnapshot.forEach((doc) => {
+        role = doc.data().role;
+        email = doc.data().email;
+      });
+      return role;
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      return "";
+    }
+  };
 
-      <Card containerStyle={styles.cardContainer}>
-        <Card.Title style={styles.cardTitle}>Developer Information</Card.Title>
-        <Card.Divider />
-        <View style={styles.avatarContainer}>
-          <Avatar
-            rounded
-            size="large"
-            source={require("../../assets/avatar.png")} // Replace with the actual path to your avatar
-          />
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.profile}>
+          <View style={styles.profileTop}>
+            <View style={styles.avatar}>
+              <Image
+                alt=""
+                source={require("../../assets/non.jpg")}
+                style={styles.avatarImg}
+              />
+
+              <View style={styles.avatarNotification} />
+            </View>
+
+            <View style={styles.profileBody}>
+              <Text style={styles.profileTitle}>{email.split("@")[0]}</Text>
+              <Text style={styles.profileSubtitle}>
+                {userRole}
+
+                {" · "}
+
+                <Text style={{ color: "#266EF1" }}>FSJ</Text>
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Feather name="log-out" size={24} color="white" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+          <Card containerStyle={styles.card}>
+            <Card.Title>Wi-Fi Access Information</Card.Title>
+            <Card.Divider />
+            <Text>Network Name: {wifiInfo.networkName}</Text>
+            <Text>Email: {wifiInfo.networkEmail}</Text>
+            <Text>Password: {wifiInfo.password}</Text>
+        </Card>
         </View>
-        <Text style={styles.text}>Lamaachi Youssef</Text>
-        <Text style={styles.text}>Lamaachi.y889@ucd.ac.ma</Text>
-        <View style={styles.iconContainer}>
-          <Icon
-            name="github"
-            type="font-awesome"
-            size={30}
-            onPress={() => console.log("GitHub icon pressed")}
-          />
-          <Icon
-            name="linkedin-square"
-            type="font-awesome"
-            size={30}
-            onPress={() => console.log("LinkedIn icon pressed")}
-          />
-        </View>
-      </Card>
-    </View>
+
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
-    paddingTop: 120,
-    backgroundColor: "#e8ecf4",
+    paddingVertical: 24,
+    paddingHorizontal: 0,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    color: "white",
   },
-  gridContainer: {
+  card: {
+    marginBottom: 20,
+  },
+  /** Profile */
+  profile: {
+    backgroundColor: "#fff",
+    padding: 24,
+  },
+  profileTop: {
     flexDirection: "row",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 16,
   },
-  gridItem: {
-    flex: 1,
-    marginRight: 10,
+  profileBody: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    paddingLeft: 16,
   },
-  cardContainer: {
-    padding: 16,
-    marginBottom: 20,
-  },
-  cardTitle: {
-    fontSize: 20,
-    marginBottom: 10,
-  },
-  avatarContainer: {
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 16,
-  },
-  iconContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  logoutButton: {
+    backgroundColor: "#266EF1",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
     marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  profileTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    lineHeight: 32,
+    color: "#121a26",
+    marginBottom: 6,
+    marginTop: 13,
+  },
+  profileSubtitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#778599",
+  },
+  profileDescription: {
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 18,
+    color: "#778599",
+  },
+  profileTags: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  profileTagsItem: {
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 18,
+    color: "#266ef1",
+    marginRight: 4,
+  },
+  /** Avatar */
+  avatar: {
+    position: "relative",
+  },
+  avatarImg: {
+    marginTop:18,
+    width: 50,
+    height: 50,
+    borderRadius: 9999,
+  },
+  avatarNotification: {
+    position: "absolute",
+    borderRadius: 9999,
+    borderWidth: 2,
+    borderColor: "#fff",
+    bottom: 0,
+    right: -2,
+    width: 21,
+    height: 21,
+    backgroundColor: "#22C55E",
   },
 });
 

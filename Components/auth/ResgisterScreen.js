@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   StyleSheet,
   SafeAreaView,
@@ -7,49 +7,88 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-} from 'react-native';
+  ActivityIndicator
+} from "react-native";
 
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import auth from './firebase';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import auth from "./firebase";
+import { addDoc, collection } from "firebase/firestore";
+import db from "../db/firebaseStore";
 
 export default function RegisterScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  
+  // // Send verification email
+  const sendEmailVerificationUser = async (user) => {
+    try {
+      await sendEmailVerification(user);
+      Alert.alert(
+        "Verification Email Sent",
+        "Please check your email for verification"
+      );
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      Alert.alert("Error", "Failed to send verification email");
+    }
+  };
 
   const handleRegister = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
+      Alert.alert("Error", "Please enter email and password");
       return;
     }
-  
-    // Regular expression to check if the email has the domain "@ucd.ac.ma"
+
+    //Regular expression to check if the email has the domain "@ucd.ac.ma"
     const emailRegex = /^[^\s@]+@ucd\.ac\.ma$/i;
-  
+
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email with the domain "@ucd.ac.ma"');
+      Alert.alert(
+        "Error",
+        'Please enter a valid email with the domain "@ucd.ac.ma"'
+      );
       return;
     }
-  
+    setLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Registered successfully
+      .then(async (userCredential) => {
         const user = userCredential.user;
-        Alert.alert('Registration Success', `Welcome, ${user.email}!`);
-        navigation.navigate('Login'); // Navigate to the login page after registration
+        // Continue with navigation or other actions
+        navigation.replace("Login"); // Navigate to the main screen after successful registration
+
+        // Send email verification
+        await sendEmailVerificationUser(user);
+        
+        try {
+          const usersCollection = collection(db, "users");
+          await addDoc(usersCollection, {
+            uid: user.uid,
+            email: user.email,
+            name: user.email.split("@")[0],
+            role: "Visitor", // Set default role to regular
+          });
+          setLoading(false);
+        } catch (error) {
+          setLoading(fasle);
+          console.error("Error adding user to users collection:", error);
+        }
       })
       .catch((error) => {
+        setLoading(false);
         const errorMessage = error.message;
-        Alert.alert('Registration Failed', errorMessage);
+        Alert.alert("Registration Failed", errorMessage);
       });
   };
-  
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
       <View style={styles.container}>
-      <View style={styles.header}>
+        <View style={styles.header}>
           <Text style={styles.title}>
-            Regiter to <Text style={{ color: "#075eec" }}>FsGuid</Text>
+            Regiter to <Text style={{ color: "#637A9F" }}>FsGuid</Text>
           </Text>
         </View>
         <View style={styles.form}>
@@ -61,7 +100,7 @@ export default function RegisterScreen({ navigation }) {
               autoCorrect={false}
               keyboardType="email-address"
               onChangeText={(text) => setEmail(text)}
-              placeholder="john@example.com"
+              placeholder="exemple@ucd.ac.ma"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
               value={email}
@@ -83,9 +122,13 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity onPress={handleRegister}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Save</Text>
+            <TouchableOpacity onPress={handleRegister} disabled={loading}>
+              <View style={[styles.btn, { opacity: loading ? 0.5 : 1 }]}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.btnText}>Save</Text>
+                )}
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -138,18 +181,18 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 17,
-    fontWeight: '600',
-    color: '#222',
+    fontWeight: "600",
+    color: "#222",
     marginBottom: 8,
   },
   inputControl: {
     height: 44,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
     borderRadius: 12,
     fontSize: 15,
-    fontWeight: '500',
-    color: '#222',
+    fontWeight: "500",
+    color: "#222",
   },
   formFooter: {
     marginTop: 30,
@@ -160,20 +203,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0.15,
   },
   btn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: '#075eec',
-    borderColor: '#075eec',
+    backgroundColor: "#637A9F",
+    borderColor: "#637A9F",
   },
   btnText: {
     fontSize: 18,
     lineHeight: 26,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
   },
 });

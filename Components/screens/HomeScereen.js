@@ -3,19 +3,19 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import GridButtonsScreen from './GridButtonsScreen';
 import Map from './Map'
-import { Card } from "react-native-elements";
+import HomeEvent from './HomeEvent';
 const Stack = createStackNavigator();
 
-const MapsScreen = () => {
+const HomeScreen = () => {
   return (
-    <Stack.Navigator initialRouteName='Grid'>
-      <Stack.Screen name="Grid" screenOptions={{
+    <Stack.Navigator initialRouteName='HomeEvent'>
+      <Stack.Screen name="HomeEvent" screenOptions={{
             header: () => <CustomHeader title="FSJ GUID" navigation={navigation} />,
           }}
-           options={{ headerShown: false }}  component={GridButtonsScreen} />
-      <Stack.Screen  name="Map"  component={Map} />
+           options={{ headerShown: false }}  component={HomeEvent} />
+      <Stack.Screen name="Map"  component={Map} />
     </Stack.Navigator>
   );
 };
 
-export default MapsScreen;
+export default HomeScreen;

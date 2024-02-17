@@ -1,82 +1,112 @@
 // GridButtonsScreen.js
-import React from 'react';
-import { useState,useEffect } from 'react';
-import { View, FlatList, TouchableOpacity, Text,TextInput, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from "react";
+import { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  Image,
+  Alert,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import FeatherIcon from "react-native-vector-icons/Feather";
 import { collection, getDocs } from "firebase/firestore";
-import db from '../db/firebaseStore';
-
+import db from "../db/firebaseStore";
+import { Card } from "react-native-elements";
+import { batiment } from "../db/data";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { BottomNavigationTab } from "@ui-kitten/components";
+import { FlatList, TextInput } from "react-native-gesture-handler";
 
 const GridButtonsScreen = () => {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(data);
-  // const [data, setData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState(batiment);
+  const [data, setData] = useState(batiment);
 
   useEffect(() => {
     // Filter data based on searchQuery
-    const filtered = data.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filtered = batiment.filter((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     setFilteredData(filtered);
   }, [searchQuery]);
 
-  const data = [
-    { id: '1', title: 'Nouelle Biblioteque', latitude: 33.225057, longitude: -8.488439 },
-    // { id: '11', title: 'Old Biblioteque', latitude: 33.226247, longitude:   },
-    { id: '2', title: 'Student Buvete',latitude:33.225100,longitude: -8.485768 },
-    { id: '3', title: 'Prof Buvete',latitude:33.226199,longitude: -8.487530 },
-    { id: '4', title: 'Parking',latitude:33.226625,longitude: -8.487444 },
-    { id: '5', title: 'CED & Anapec',latitude:33.225495,longitude: -8.488429 },
-    { id: '6', title: 'Tech Center',latitude:33.224977,longitude:-8.488013 },
-    { id: '7', title: 'Grand Amphi',latitude:33.224722,longitude: -8.487646 },
-    { id: '8', title: 'Mosque',latitude:33.224683,longitude: -8.488106 },
-    { id: '9', title: 'Terain',latitude:33.224455,longitude: -8.487514 },
-    { id: '10', title: 'Dep Informatique',latitude:33.224974,longitude: -8.487582 },
-  ];
-
-  
-  
-
   const handleButtonPress = (item) => {
     // Check if latitude and longitude are defined
-    if (item.latitude !== undefined && item.longitude !== undefined) {
-      // Navigate to the MapsScreen
-      navigation.navigate('Map', { latitude: item.latitude, longitude: item.longitude,title:item.title });
+
+    if (
+      item.location.latitude !== undefined &&
+      item.location.longitude !== undefined
+    ) {
+      //Navigate to the MapsScreen
+      navigation.navigate("Map", {
+        latitude: item.location.latitude,
+        longitude: item.location.longitude, // 'longitude' is misspelled, should be 'longitude'
+        title: item.name,
+      });
     } else {
       // Display an alert for the case where latitude or longitude is undefined
-      Alert.alert('Invalid Coordinates', 'Latitude or longitude is undefined for this location.');
+      Alert.alert(
+        "Invalid Coordinates",
+        "Latitude or longitude is undefined for this location."
+      );
     }
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.button} onPress={() => handleButtonPress(item)}>
-      <Text style={styles.buttonText}>{item.title}</Text>
-    </TouchableOpacity>
+   
+      <TouchableOpacity onPress={() => handleButtonPress(item)}>
+        <View style={styles.card}>
+          <View style={styles.cardBody}>
+            <Text numberOfLines={1} style={styles.cardTitle}>
+              {item.name}
+            </Text>
+            <View style={styles.cardRow}>
+              <View style={styles.cardRowItem}>
+                <FontAwesome5 color="#173153" name="building" size={13} />
+                <Text style={styles.cardRowItemText}>{item.description}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.cardAction}>
+            <FeatherIcon color="#9ca3af" name="chevron-right" size={22} />
+          </View>
+        </View>
+      </TouchableOpacity>
   );
-  
+    
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <View style={styles.containerheader}>
+      <Text style={styles.header}>Don't get Lost </Text>
       <TextInput
-      style={styles.searchBar}
-      placeholder="Search..."
-      value={searchQuery}
-      onChangeText={(text) => setSearchQuery(text)}
-    />
-      <FlatList
-        data={filteredData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
+        style={styles.searchBar}
+        placeholder="Search..."
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
       />
     </View>
+    <FlatList
+  data={filteredData}
+  renderItem={renderItem}
+  keyExtractor={(item) => item.name} // Assuming id is numeric, convert to string if necessary
+  contentContainerStyle={styles.container}
+/>
+  </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  containerheader: {
     padding: 16,
     paddingTop: 50,
-    backgroundColor: '#e8ecf4' 
+    // backgroundColor: '#e8ecf4'
+    backgroundColor: "white",
+    position:"fixed"
   },
   searchBar: {
     height: 40,
@@ -87,18 +117,85 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  button: {
-    flex: 1,
-    margin: 8,
-    padding: 16,
-    backgroundColor: '#3498db',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
+  
+  header:{
+    color: '#6c757d',
+    textAlign:"center",
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  cardAction: {
+
+    marginTop: 18,
+  },
+  container: {
+    padding: 24,
+    
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1d1d1d",
+    marginBottom: 12,
+  },
+  /** Card */
+  card: {
+    flexDirection: "row",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  cardWrapper: {
+    paddingVertical: 16,
+    borderTopWidth: 2,
+    borderColor: "#e6e7e8",
+  },
+  cardImg: {
+    width: 88,
+    height: 88,
+    borderRadius: 12,
+    marginRight: 16,
+  },
+  cardBody: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    paddingVertical: 12,
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: "700",
+    color: "#222",
+  },
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginHorizontal: -6,
+  },
+  cardRowItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
+  cardRowItemText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#173153",
+    marginLeft: 4,
+  },
+  cardPrice: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: "#173153",
   },
 });
 

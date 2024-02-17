@@ -1,32 +1,23 @@
 import React, { useEffect,useState } from 'react';
 import { View, Text, StyleSheet,Image } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
-import { onAuthStateChanged } from 'firebase/auth'; // Import onAuthStateChanged
 import auth from './auth/firebase'; // Import your Firebase authentication instance
-
+import { Card } from "react-native-elements";
 
 
 const SplashScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Listen for changes in the authentication state
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-
-      // If a user is connected, navigate to the home screen; otherwise, navigate to the login screen
       setTimeout(()=>{
-        if (user) {
-          navigation.navigate('Main');
-        } else {
-          navigation.navigate('Login');
-        }
-      },4000)
-      
-    });
-
-    // Clear the listener on component unmount
-    return () => unsubscribe();
+        auth.onAuthStateChanged(user => {
+          if(user && user.emailVerified){
+            navigation.navigate('Main');
+          }else{
+            navigation.navigate('Login');
+          }
+        })
+      },4000);
   }, [navigation]);
   
   return (
@@ -36,7 +27,7 @@ const SplashScreen = ({ navigation }) => {
         style={styles.logo}
         resizeMode="contain"
       />
-    <ActivityIndicator  />
+    <ActivityIndicator size={40} color='blue' />
     </View>
     
   );
@@ -47,7 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems:'center',
-    backgroundColor: '#e8ecf4' 
+    backgroundColor: "white"
     // backgroundColor: 'white', // Set the background color to white
   },
   logo: {

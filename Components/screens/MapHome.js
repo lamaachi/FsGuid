@@ -6,6 +6,7 @@ import MapViewDirections from "react-native-maps-directions";
 import * as Location from 'expo-location';
 
 const GOOGLE_MAPS_APIKEY = "AIzaSyBa6wKAcoJEA5h_gzJBuIqU6UNKc1sXbQk";
+
 export default function Map() {
   const route = useRoute();
   const [userLocation, setUserLocation] = useState(null);

@@ -7,35 +7,53 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
-
 import {
+  onAuthStateChanged,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import auth from "./firebase";
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password");
       return;
     }
-
+    setLoading(true);
+    const userAuth = onAuthStateChanged(auth,(user)=>{
+      if(!user){
+        setPassword("")
+      }
+    }) 
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
-        navigation.replace("Main");
-        // Alert.alert('Login Successed', user.email);
+        if (user.emailVerified) {
+          navigation.navigate("Main");
+          setLoading(false);
+        } else {
+          setLoading(false);
+          // Sign out the user and prompt for email verification
+          //signOut(auth);
+          Alert.alert(
+            "Email Verification Required",
+            "Please verify your email before signing in. Check your email inbox for verification instructions."
+          );
+        }
       })
       .catch((error) => {
-        const errorMessage = error.message;
-        Alert.alert("Login Failed", "Email Or Password Doesn't exist!!");
+        setLoading(false);
+        Alert.alert("Login Failed", "Email or password Are Wrong");
       });
   };
+
   const handleForgotPassword = () => {
     if (!email) {
       Alert.alert("Error", "Please enter your email to reset your password");
@@ -59,7 +77,7 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            Sign in to <Text style={{ color: "#075eec" }}>FsGuid</Text>
+            Sign in to <Text style={{ color: "#637A9F" }}>FsGuid</Text>
           </Text>
 
           <Text style={styles.subtitle}>
@@ -76,7 +94,7 @@ export default function LoginScreen({ navigation }) {
               autoCorrect={false}
               keyboardType="email-address"
               onChangeText={(text) => setEmail(text)}
-              placeholder="john@example.com"
+              placeholder="exemple@ucd.ac.ma"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
               value={email}
@@ -98,9 +116,13 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity onPress={handleLogin}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign in</Text>
+            <TouchableOpacity disabled={loading} onPress={handleLogin}>
+              <View style={[styles.btn, { opacity: loading ? 0.5 : 1 }]}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.btnText}>Sign in</Text>
+                )}
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -132,9 +154,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     fontWeight: "500",
-    color: "#075eec",
+    color: "black",
     textAlign: "center",
-    textDecorationLine: "underline",
+    textDecorationLine: "none",
   },
   container: {
     padding: 24,
@@ -146,7 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 27,
     fontWeight: "700",
     color: "#1d1d1d",
-    marginTop: 120,
+    marginTop: 90,
     marginBottom: 6,
     textAlign: "center",
   },
@@ -165,6 +187,19 @@ const styles = StyleSheet.create({
     height: 80,
     alignSelf: "center",
     marginBottom: 36,
+  },
+  cardContainer: {
+    marginTop: 20,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  cardContent: {
+    paddingVertical: 20,
+  },
+  wifiInfo: {
+    fontSize: 16,
   },
   /** Form */
   form: {
@@ -212,8 +247,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: "#075eec",
-    borderColor: "#075eec",
+    backgroundColor: "#637A9F",
+    borderColor: "#637A9F",
   },
   btnText: {
     fontSize: 18,

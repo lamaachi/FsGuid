@@ -19,9 +19,19 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/map.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBa6wKAcoJEA5h_gzJBuIqU6UNKc1sXbQk"
+        }
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
       "package": "com.lamaachi.fsGuid"
     },
     "web": {
@@ -31,6 +41,12 @@
       "eas": {
         "projectId": "1744439f-f571-4d46-a113-e027ceaec983"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1744439f-f571-4d46-a113-e027ceaec983"
     }
   }
 }
