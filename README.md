@@ -1,4 +1,4 @@
-### FsGuid
+### 🗺️ FsGuid
 
 ---
 
@@ -6,24 +6,24 @@
 
 This repository contains the source code for a mobile application designed to facilitate access to information and navigation within university campuses. Users can view ongoing events, locate departments and rooms, add and delete comments, and more.
 
-#### Features
+#### 🚀 Features
 
-- View ongoing university events
-- Find locations of departments and rooms
-- Add and delete comments
-- User-friendly interface
-- Responsive design for mobile devices
+- View ongoing university events 📅
+- Find locations of departments and rooms 📍
+- Add and delete comments 💬
+- User-friendly interface 👨‍💻
+- Responsive design for mobile devices 📱
 
 #### Test Account
 
 - Email: lamaachi.y889@ucd.ac.ma
-- Password: [password]
+- Password: test00
 
 #### Technologies Used
 
-- React Native
-- Firebase (Firestore)
-- Google Maps API
+- React Native ⚛️
+- Firebase (Firestore) 🔥
+- Google Maps API 🗺️
 
 
 #### Installation
