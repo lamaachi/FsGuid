@@ -32,7 +32,10 @@ This repository contains the source code for a mobile application designed to fa
 2. Navigate to the project directory.
 3. Install dependencies using `npm install`.
 4. Run the project using `npm start`.
+#### Download
 
+- APK: [Download APK](https://expo.dev/artifacts/eas/8CQWhdCdrMZcx1UPouh58T.apk)
+- User Guide: [User Guide]([https://docs.google.com/presentation/d/1OxCDj6TCEogadhQZ1rLhOdydAY3rBmEZ/edit](https://docs.google.com/presentation/d/1OxCDj6TCEogadhQZ1rLhOdydAY3rBmEZ/edit?usp=sharing&ouid=105295694193689769974&rtpof=true&sd=true))
 #### Contribution
 
 Contributions are welcome! Feel free to submit pull requests or open issues for any bugs or feature requests.
