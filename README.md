@@ -14,11 +14,6 @@ This repository contains the source code for a mobile application designed to fa
 - User-friendly interface 👨‍💻
 - Responsive design for mobile devices 📱
 
-#### Test Account
-
-- Email: lamaachi.y889@ucd.ac.ma
-- Password: test00
-
 #### Technologies Used
 
 - React Native ⚛️
